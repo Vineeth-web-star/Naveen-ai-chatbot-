@@ -28,4 +28,4 @@ export default async function handler(req, res) {
     console.error("AI API Error:", error.message);
     res.status(500).json({ error: "Server error" });
   }
-}
+
