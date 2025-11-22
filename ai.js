@@ -1,35 +1,35 @@
-export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-  try {
-    const body = JSON.parse(event.body || "{}");
-    const userMessage = (body.message || "").trim();
-    if (!userMessage) {
-      return { statusCode: 400, body: JSON.stringify({ error: "No message provided." }) };
-    }
-    const systemPrompt = `You are Naveen AI — calm, confident, helpful. Keep answers concise.`;
+import OpenAI from "openai";
 
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage }
-        ],
-        max_tokens: 300
-      })
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  try {
+    const { message } = req.body;
+
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are a personal AI version of Vineeth.",
+        },
+        { role: "user", content: message },
+      ],
     });
 
-    const data = await resp.json();
-    const reply = data.choices?.[0]?.message?.content || "Sorry, no reply.";
-    return { statusCode: 200, body: JSON.stringify({ reply }) };
-  } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: "Server error", detail: String(err) }) };
+    res.status(200).json({
+      reply: response.choices[0].message.content,
+    });
+  } catch (error) {
+    console.error("API Error:", error);
+    res.status(500).json({ error: "Server error" });
   }
+}
+
 }
