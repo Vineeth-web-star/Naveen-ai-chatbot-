@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: "You are a personal AI version of Vineeth." },
-        { role: "user", content: message },
+        { role: "user", content: message }
       ],
     });
 
@@ -25,7 +25,9 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error("AI API Error:", error.message);
+    console.error("AI API Error:", error?.message);
     res.status(500).json({ error: "Server error" });
   }
+}
+
 
