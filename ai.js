@@ -26,10 +26,9 @@ export default async function handler(req, res) {
     res.status(200).json({
       reply: response.choices[0].message.content,
     });
+
   } catch (error) {
     console.error("API Error:", error);
     res.status(500).json({ error: "Server error" });
   }
-}
-
 }
